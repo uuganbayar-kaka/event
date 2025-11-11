@@ -92,7 +92,7 @@
 											<img class="img" src="{% static prod.product_image.url %}" alt="product pic" height="300px" width="300px">
 											{% if prod.discount %}
 												<div class="product-label">
-													<span class="sale">{{ prod.discount_price }}</span>
+													<!-- <span class="sale">{{ prod.discount_price }}</span> -->
 													<span class="new">{{ prod.discount_type }}</span>
 												</div>
 											{% endif %}
@@ -100,7 +100,11 @@
 										<div class="product-body">
 											<!-- <p class="product-category">Category</p> -->
 											<h3 class="product-name"><a href="#">{{prod.description}}</a></h3>
-											<h4 class="product-price">₮ {{prod.price}} <del class="product-old-price">₮ 2500</del></h4>
+											{% if prod.discount %}
+												<h4 class="product-price">₮ {{ prod.discount_price }} <del class="product-old-price">₮ {{ prod.price }}</del></h4>
+											{% else %}
+												<h4 class="product-price">₮ {{ prod.price }}</h4>
+											{% endif %}
 											<!-- <div class="product-rating">
 												<i class="fa fa-star"></i>
 												<i class="fa fa-star"></i>
@@ -112,7 +116,7 @@
 												<a class="quick-view" href="{% url 'view-product' prod.id %}">
 													<i class="fa fa-eye"></i>
 													<span class="tooltipp">Дэлгэрэнгүй</span>
-												</a>														
+												</a>
 											</div>
 										</div>
 										<div class="add-to-cart">
@@ -241,15 +245,19 @@
 										<img class="img" src="{% static prod.product_image.url %}" alt="product pic" height="250px" width="250px">
 										{% if prod.discount %}
 											<div class="product-label">
-												<span class="sale">{{ prod.discount_price }}</span>
+												<!-- <span class="sale">{{ prod.discount_price }}</span> -->
 												<span class="new">{{ prod.discount_type }}</span>
 											</div>
 										{% endif %}
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
-										<h3 class="product-name"><a href="#">product name goes here</a></h3>
-										<h4 class="product-price">₮ {{prod.price}} <del class="product-old-price">₮ 2500</del></h4>
+										<h3 class="product-name"><a href="#">{{ prod.name }}</a></h3>
+										{% if prod.discount %}
+											<h4 class="product-price">₮ {{ prod.discount_price }} <del class="product-old-price">₮ {{ prod.price }}</del></h4>
+										{% else %}
+											<h4 class="product-price">₮ {{ prod.price }}</h4>
+										{% endif %}
 										<!-- <div class="product-rating">
 											<i class="fa fa-star"></i>
 											<i class="fa fa-star"></i>
@@ -257,11 +265,12 @@
 											<i class="fa fa-star"></i>
 											<i class="fa fa-star"></i>
 										</div> -->
-										<!-- <div class="product-btns"> -->
-											<!-- <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button> -->
-											<!-- <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button> -->
-											<!-- <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button> -->
-										<!-- </div> -->
+										<div class="product-btns">
+											<a class="quick-view" href="{% url 'view-product' prod.id %}">
+												<i class="fa fa-eye"></i>
+												<span class="tooltipp">Дэлгэрэнгүй</span>
+											</a>
+										</div>
 									</div>
 									<div class="add-to-cart">
 										<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
