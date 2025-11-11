@@ -1,15 +1,8 @@
-"""
-
-Developed By : naem azam
-facebook : fb.com/naemazamchowdhury
-Youtube :youtube.com/TheTerminalBoy
-
-
-"""
 from django.contrib import admin
 from django.urls import path
 from ecom import views
 from django.contrib.auth.views import LoginView,LogoutView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.home_view,name=''),
@@ -31,12 +24,19 @@ urlpatterns = [
 
     path('admin-products', views.admin_products_view,name='admin-products'),
     path('admin-add-product', views.admin_add_product_view,name='admin-add-product'),
+    
+    path('admin-category', views.admin_category_view,name='admin-category'),
+    path('admin-add-category', views.admin_add_category_view,name='admin-add-category'),
+
     path('delete-product/<int:pk>', views.delete_product_view,name='delete-product'),
     path('update-product/<int:pk>', views.update_product_view,name='update-product'),
 
     path('admin-view-booking', views.admin_view_booking_view,name='admin-view-booking'),
     path('delete-order/<int:pk>', views.delete_order_view,name='delete-order'),
     path('update-order/<int:pk>', views.update_order_view,name='update-order'),
+    
+    ## Products
+    path('view-product/<int:pk>', views.product_view,name='view-product'),
 
 
     path('customersignup', views.customer_signup_view),

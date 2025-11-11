@@ -8,7 +8,8 @@ from django.contrib import messages
 from django.conf import settings
 
 def home_view(request):
-    products=models.Product.objects.all()
+    products = models.Product.objects.all()
+    category = models.ProductCategory.objects.all()
     if 'product_ids' in request.COOKIES:
         product_ids = request.COOKIES['product_ids']
         print("request.COOKIES : ", request.COOKIES)
@@ -18,10 +19,16 @@ def home_view(request):
     else:
         product_count_in_cart=0
     cart_products=0
-    print("product_count_in_cart : ", product_count_in_cart)
+
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
-    return render(request,'ecom/index.html',{'products':products,'product_count_in_cart':product_count_in_cart, 'cart_products':cart_products})
+
+    return render(request,'ecom/index.html', {
+        'products':products,
+        'product_count_in_cart':product_count_in_cart,
+        'cart_products':cart_products,
+        'category':category,
+    })
     
 
 #for showing login button for admin(by sumit)
@@ -132,6 +139,20 @@ def admin_products_view(request):
     products=models.Product.objects.all()
     return render(request,'ecom/admin/admin_products.html',{'products':products})
 
+@login_required(login_url='adminlogin')
+def admin_category_view(request):
+    category=models.ProductCategory.objects.all()
+    return render(request,'ecom/admin/admin_category.html',{'categores':category})
+
+@login_required(login_url='adminlogin')
+def admin_add_category_view(request):
+    productCategoryForm=forms.ProductCategoryForm()
+    if request.method=='POST':
+        productCategoryForm=forms.ProductCategoryForm(request.POST, request.FILES)
+        if productCategoryForm.is_valid():
+            productCategoryForm.save()
+        return HttpResponseRedirect('admin-category')
+    return render(request, 'ecom/admin/admin_add_category.html', {'productCategoryForm':productCategoryForm})
 
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
@@ -142,7 +163,7 @@ def admin_add_product_view(request):
         if productForm.is_valid():
             productForm.save()
         return HttpResponseRedirect('admin-products')
-    return render(request,'ecom/admin/admin_add_products.html',{'productForm':productForm})
+    return render(request, 'ecom/admin/admin_add_products.html', {'productForm':productForm})
 
 
 @login_required(login_url='adminlogin')
@@ -185,7 +206,7 @@ def delete_order_view(request,pk):
 
 # for changing status of order (pending,delivered...)
 @login_required(login_url='adminlogin')
-def update_order_view(request,pk):
+def update_order_view(request, pk):
     order=models.Orders.objects.get(id=pk)
     orderForm=forms.OrderForm(instance=order)
     if request.method=='POST':
@@ -326,6 +347,13 @@ def send_feedback_view(request):
             feedbackForm.save()
             return render(request, 'ecom/feedback_sent.html')
     return render(request, 'ecom/send_feedback.html', {'feedbackForm':feedbackForm})
+
+
+def product_view(request, pk):
+    product=models.Product.objects.get(id=pk)
+    productForm=forms.ProductForm(instance=product)
+
+    return render(request,'ecom/product.html',{'productForm':productForm})
 
 
 #---------------------------------------------------------------------------------
@@ -472,7 +500,6 @@ def my_order_view(request):
 
 #--------------for discharge patient bill (pdf) download and printing
 import io
-from xhtml2pdf import pisa
 from django.template.loader import get_template
 from django.template import Context
 from django.http import HttpResponse
@@ -482,9 +509,9 @@ def render_to_pdf(template_src, context_dict):
     template = get_template(template_src)
     html  = template.render(context_dict)
     result = io.BytesIO()
-    pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    # pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-1")), result)
+    # if not pdf.err:
+    #     return HttpResponse(result.getvalue(), content_type='application/pdf')
     return
 
 @login_required(login_url='customerlogin')
@@ -508,10 +535,6 @@ def download_invoice_view(request,orderID,productID):
 
     }
     return render_to_pdf('ecom/download_invoice.html',mydict)
-
-
-
-
 
 
 @login_required(login_url='customerlogin')

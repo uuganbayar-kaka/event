@@ -19,7 +19,7 @@ class CustomerForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model=models.Product
-        fields=['name','price','description','product_image']
+        fields=['name','price', 'discount_price', 'discount_type', 'discount', 'description','product_image']
 
 #address of shipment
 class AddressForm(forms.Form):
@@ -43,3 +43,9 @@ class ContactusForm(forms.Form):
     Name = forms.CharField(max_length=30)
     Email = forms.EmailField()
     Message = forms.CharField(max_length=500,widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+
+# Category
+class ProductCategoryForm(forms.ModelForm):
+    class Meta:
+        model=models.ProductCategory
+        fields=['name']
