@@ -1,1 +1,6 @@
-.vercel
+.vscode/
+.idea/
+*.pyc
+__pycache__/
+*.pyo
+*$py.class
