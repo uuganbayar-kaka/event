@@ -353,7 +353,7 @@ def product_view(request, pk):
     product=models.Product.objects.get(id=pk)
     productForm=forms.ProductForm(instance=product)
 
-    return render(request,'ecom/product.html',{'productForm':productForm})
+    return render(request,'ecom/product.html', {'product':product})
 
 
 #---------------------------------------------------------------------------------
