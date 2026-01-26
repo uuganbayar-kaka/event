@@ -10,8 +10,8 @@
 		<div class="row">
 			<div class="col-md-12">
 				<ul class="breadcrumb-tree">
-					<li><a href="#">Home</a></li>
-					<li><a href="#">Ангилал</a></li>
+					<li><a href="/">Нүүр хуудас</a></li>
+					<li><a href="#">{{ product.category }}</a></li>
 					<li class="active">{{ product.name }}</li>
 				</ul>
 			</div>
@@ -31,43 +31,23 @@
 			<!-- Product main img -->
 			<div class="col-md-5 col-md-push-2">
 				<div id="product-main-img">
+					{% for img in images %}
 					<div class="product-preview">
-						<img class="img" src="{% static product.product_image.url %}" alt="product pic" height="300px" width="300px">
+						<img class="img" src="{% static img.image %}" alt="product pic" height="300px" width="300px">
 					</div>
-
-					<div class="product-preview">
-						<img src="./img/product03.png" alt="">
-					</div>
-
-					<div class="product-preview">
-						<img src="./img/product06.png" alt="">
-					</div>
-
-					<div class="product-preview">
-						<img src="./img/product08.png" alt="">
-					</div>
+					{% endfor %}
 				</div>
 			</div>
 			<!-- /Product main img -->
-
+			
 			<!-- Product thumb imgs -->
-			<div class="col-md-2  col-md-pull-5">
+			<div class="col-md-2 col-md-pull-5">
 				<div id="product-imgs">
-					<div class="product-preview">
-						<img src="./img/product01.png" alt="">
-					</div>
-
-					<div class="product-preview">
-						<img src="./img/product03.png" alt="">
-					</div>
-
-					<div class="product-preview">
-						<img src="./img/product06.png" alt="">
-					</div>
-
-					<div class="product-preview">
-						<img src="./img/product08.png" alt="">
-					</div>
+					{% for img in images %}
+						<div class="product-preview">
+							<img src="{% static img.image %}" alt="">
+						</div>
+					{% endfor %}
 				</div>
 			</div>
 			<!-- /Product thumb imgs -->
@@ -84,30 +64,52 @@
 
 					<div class="add-to-cart">
 						<div class="qty-label">
-							Qty
+							Тоо
 							<div class="input-number">
 								<input type="number">
 								<span class="qty-up">+</span>
 								<span class="qty-down">-</span>
 							</div>
 						</div>
-						<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+						<button class="add-to-cart-btn">
+							<i class="fa fa-shopping-cart">
+								<a href="{% url 'add-to-cart' product.id %}"></a>
+							</i> add to cart
+						</button>
 					</div>
 
 					<ul class="product-links">
-						<li>Category:</li>
-						<li><a href="#">Headphones</a></li>
-						<li><a href="#">Accessories</a></li>
+						<li>Ангилал:</li>
+						<li><a href="#">{{ product.category }}</a></li>
 					</ul>
-
-					<ul class="product-links">
-						<li>Share:</li>
-						<li><a href="#"><i class="fa fa-facebook"></i></a></li>
-						<li><a href="#"><i class="fa fa-twitter"></i></a></li>
-						<li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-						<li><a href="#"><i class="fa fa-envelope"></i></a></li>
-					</ul>
-
+					{% with current_url=request.build_absolute_uri %}
+						<ul class="product-links">
+							<li>Хуваалцах:</li>
+							<li>
+								<a href="https://www.facebook.com/sharer/sharer.php?u={{ current_url }}"
+								   target="_blank">
+									<i class="fa fa-facebook"></i>
+								</a>
+							</li>
+							<li>
+								<a href="https://twitter.com/intent/tweet?url={{ current_url }}&text={{ product.name }}"
+								target="_blank">
+									<i class="fa fa-twitter"></i>
+								</a>
+							</li>
+							<li>
+								<a href="mailto:?subject={{ product.name }}&body={{ current_url }}">
+									<i class="fa fa-envelope"></i>
+								</a>
+							</li>
+							<li>
+								<a href="https://api.whatsapp.com/send?text={{ product.name }} - {{ current_url }}"
+								target="_blank">
+									<i class="fa fa-whatsapp"></i>
+								</a>
+							</li>
+						</ul>
+					{% endwith %}
 				</div>
 			</div>
 			<!-- /Product details -->
@@ -117,8 +119,8 @@
 				<div id="product-tab">
 					<!-- product tab nav -->
 					<ul class="tab-nav">
-						<li class="active"><a data-toggle="tab" href="#tab1">Тайлбар</a></li>
-						<li><a data-toggle="tab" href="#tab2">Details</a></li>
+						<li class="active"><a data-toggle="tab" href="#tab1">Дэлгэрэнгүй мэдээлэл</a></li>
+						<!-- <li><a data-toggle="tab" href="#tab2">Details</a></li> -->
 					</ul>
 					<!-- /product tab nav -->
 

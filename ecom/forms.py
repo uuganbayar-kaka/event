@@ -1,25 +1,31 @@
 from django import forms
+from django.forms import modelformset_factory
+from .models import *
 from django.contrib.auth.models import User
-from . import models
 
 
 class CustomerUserForm(forms.ModelForm):
     class Meta:
         model=User
-        fields=['first_name','last_name','username','password']
-        widgets = {
-        'password': forms.PasswordInput()
-        }
+        fields=['first_name', 'last_name', 'username', 'password']
+        widgets = { 'password': forms.PasswordInput() }
         
 class CustomerForm(forms.ModelForm):
     class Meta:
-        model=models.Customer
-        fields=['address','mobile','profile_pic']
+        model=Customer
+        fields=['address', 'mobile']
 
 class ProductForm(forms.ModelForm):
     class Meta:
-        model=models.Product
-        fields=['name','price', 'discount_price', 'discount_type', 'discount', 'description','product_image']
+        model=Product
+        fields=['name', 'price', 'discount_price', 'discount_type', 'discount', 'description', 'product_image']
+
+ProductImageFormSet = modelformset_factory(
+    ProductImage,
+    fields=('image',),
+    extra=3,
+    can_delete=True
+)
 
 #address of shipment
 class AddressForm(forms.Form):
@@ -29,13 +35,13 @@ class AddressForm(forms.Form):
 
 class FeedbackForm(forms.ModelForm):
     class Meta:
-        model=models.Feedback
+        model=Feedback
         fields=['name','feedback']
 
 #for updating status of order
 class OrderForm(forms.ModelForm):
     class Meta:
-        model=models.Orders
+        model=Orders
         fields=['status']
 
 #for contact us page
@@ -47,5 +53,10 @@ class ContactusForm(forms.Form):
 # Category
 class ProductCategoryForm(forms.ModelForm):
     class Meta:
-        model=models.ProductCategory
-        fields=['name']
+        model=ProductCategory
+        fields=['name', 'brand']
+
+class ProductBrandForm(forms.ModelForm):
+    class Meta:
+        model=ProductBrand
+        fields=['name', 'brand_image']

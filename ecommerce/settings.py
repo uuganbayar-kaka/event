@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
 from pathlib import Path
 
+load_dotenv()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -91,31 +93,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
-
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'OPTIONS': {
-#             'options': '-c search_path=django,public',
-#         },
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DB_NAME', 'event_db'),
-#         'USER': os.environ.get('DB_USER', 'event'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD', '1234'),
-#         'HOST': os.environ.get('DB_HOST', 'localhost'),
-#         'PORT': os.environ.get('DB_PORT', '5432'),
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('PGDATABASE', 'neondb'),
+        'USER': os.environ.get('PGUSER', 'neondb_owner'),
+        'PASSWORD': os.environ.get('PGPASSWORD', 'npg_mZnUKx8GIe9V'),
+        'HOST': os.environ.get('PGHOST', 'ep-floral-frost-adcod310-pooler.c-2.us-east-1.aws.neon.tech'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+    }
+}
+# PGHOST=ep-floral-frost-adcod310-pooler.c-2.us-east-1.aws.neon.tech
+# PGUSER=neondb_owner
+# PGDATABASE=neondb
+# PGPASSWORD=npg_mZnUKx8GIe9V
 
 
 # Password validation

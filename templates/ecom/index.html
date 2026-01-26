@@ -11,10 +11,10 @@
 			<div class="col-md-4 col-xs-6">
 				<div class="shop">
 					<div class="shop-img">
-						<img src="{% static '/img/shop01.png' %}" alt="">
+						<img src="{% static '/img/hyperx.jpg' %}" alt="" height="240px">
 					</div>
 					<div class="shop-body">
-						<h3>Laptop<br>Collection</h3>
+						<h3>HyperX<br>Collection</h3>
 						<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 					</div>
 				</div>
@@ -25,10 +25,10 @@
 			<div class="col-md-4 col-xs-6">
 				<div class="shop">
 					<div class="shop-img">
-						<img src="{% static '/img/shop03.png' %}" alt="">
+						<img src="{% static '/img/mouse.png' %}" alt="" height="240px">
 					</div>
 					<div class="shop-body">
-						<h3>Accessories<br>Collection</h3>
+						<h3>Mouse<br>Collection</h3>
 						<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 					</div>
 				</div>
@@ -39,10 +39,10 @@
 			<div class="col-md-4 col-xs-6">
 				<div class="shop">
 					<div class="shop-img">
-						<img src="{% static '/img/shop02.png' %}" alt="">
+						<img src="{% static '/img/figure.jpg' %}" alt="" height="240px">
 					</div>
 					<div class="shop-body">
-						<h3>Cameras<br>Collection</h3>
+						<h3>Figure<br>Collection</h3>
 						<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 					</div>
 				</div>
@@ -99,7 +99,7 @@
 										</div>
 										<div class="product-body">
 											<!-- <p class="product-category">Category</p> -->
-											<h3 class="product-name"><a href="#">{{prod.description}}</a></h3>
+											<h3 class="product-name"><a href="#">{{prod.name}}</a></h3>
 											{% if prod.discount %}
 												<h4 class="product-price">₮ {{ prod.discount_price }} <del class="product-old-price">₮ {{ prod.price }}</del></h4>
 											{% else %}
@@ -121,7 +121,7 @@
 										</div>
 										<div class="add-to-cart">
 											<a class="add-to-cart-btn" href="{% url 'add-to-cart' prod.id %}">
-												<i class="fa"></i> Add to Cart
+												<i class="fa"></i> Сонгох
 											</a>
 										</div>
 									</div>
@@ -146,64 +146,23 @@
 <!-- <div id="hot-deal" class="section"> -->
 <div class="section" style="padding-bottom: 200px;">
 	<!-- container -->
-	<div class="slider-container">
+	<div class="slider-container" id="id_slider">
 		<div class="menu">
-			<label for="slide-dot-1"></label>
-			<label for="slide-dot-2"></label>
-			<label for="slide-dot-3"></label>
-			<label for="slide-dot-4"></label>
+			{% for banner in banners %}
+				<label for="slide-dot-{{ forloop.counter }}"></label>
+			{% endfor %}
 		</div>
-		
-		<input id="slide-dot-1" type="radio" name="slides" checked>
-			<div class="slide slide-1"></div>
-		
-		<input id="slide-dot-2" type="radio" name="slides">
-			<div class="slide slide-2"></div>
-		
-		<input id="slide-dot-3" type="radio" name="slides">
-			<div class="slide slide-3"></div>
-		<input id="slide-dot-4" type="radio" name="slides">
-			<div class="slide slide-4"></div>
-		</div>
-	{% comment %}
-		<!-- <div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="hot-deal">
-						<ul class="hot-deal-countdown">
-							<li>
-								<div>
-									<h3>02</h3>
-									<span>Days</span>
-								</div>
-							</li>
-							<li>
-								<div>
-									<h3>10</h3>
-									<span>Hours</span>
-								</div>
-							</li>
-							<li>
-								<div>
-									<h3>34</h3>
-									<span>Mins</span>
-								</div>
-							</li>
-							<li>
-								<div>
-									<h3>60</h3>
-									<span>Secs</span>
-								</div>
-							</li>
-						</ul>
-						<h2 class="text-uppercase">hot deal this week</h2>
-						<p>New Collection Up to 50% OFF</p>
-						<a class="primary-btn cta-btn" href="#">Shop now</a>
-					</div>
-				</div>
+
+		{% for banner in banners %}
+			<input id="slide-dot-{{ forloop.counter }}" 
+				   type="radio" 
+				   name="slides"
+				   {% if forloop.first %}checked{% endif %}>
+			<div class="slide slide-{{ forloop.counter }}"
+				style="background-image: url('{% static banner.url %}');">
 			</div>
-		</div> -->
-	{% endcomment %}
+		{% endfor %}
+	</div>	
 	<!-- /container -->
 </div>
 <!-- /HOT DEAL SECTION -->
@@ -627,7 +586,7 @@
 <!-- /NEWSLETTER -->
 {% endcomment %}
 
-{% endblock %}
+
 <script>
 	let index = 1;
 	const total = 4;
@@ -978,67 +937,78 @@
 	} */
 
 	img {
-	max-width: 100%;
+		max-width: 100%;
 	}
 
 	.slider-container{
-	height: 30%;
-	width: 100%;
-	position: absolute;
-	overflow: hidden; 
-	text-align: center;
-	}
-
-	.menu {
-	position: absolute;
-	left: 0;
-	z-index: 900;
-	width: 100%;
-	bottom: 0;
-	}
-
-	.menu label {
-	cursor: pointer;
-	display: inline-block;
-	width: 16px;
-	height: 16px;
-	background: #fff;
-	border-radius: 50px;
-	margin: 0 .2em 1em;
-	&:hover {
-		background: red;
-	}
+		height: 40%;
+		width: 100%;
+		position: absolute;
+		overflow: hidden; 
+		text-align: center;
 	}
 
 	.slide {
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 100%;
-	z-index: 10;
-	padding: 8em 1em 0;
-	background-size: cover;
-	background-position: 50% 50%;
-	transition: left 0s .75s;
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		inset: 0;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: contain;   /* ⭐ зураг багасна, тайрагдахгүй */
+	}
+
+	.menu {
+		position: absolute;
+		left: 0;
+		z-index: 900;
+		width: 100%;
+		bottom: 0;
+	}
+
+	.menu label {
+		cursor: pointer;
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		background: #fff;
+		border-radius: 50px;
+		margin: 0 .2em 1em;
+		&:hover {
+			background: red;
+		}
+	}
+
+	.slide {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		left: 100%;
+		z-index: 10;
+		padding: 8em 1em 0;
+		background-size: cover;
+		background-position: 50% 50%;
+		transition: left 0s .75s;
 	}
 
 	[id^="slide"]:checked + .slide {
-	left: 0;
-	z-index: 100;
-	transition: left .65s ease-out;
+		left: 0;
+		z-index: 100;
+		transition: left .65s ease-out;
 	}
-
+/* 
 	.slide-1 {
-	background-image: url("{% static 'images/ecom-banner1.jpg' %}");
+	background-image: url("{% static 'images/p_hyperx.jpg' %}");
 	}
 	.slide-2 {
-	background-image: url("{% static 'images/ecom-banner4.jpg' %}");
+	background-image: url("{% static 'images/p_cooler.webp' %}");
 	}
 	.slide-3 {
-	background-image: url("{% static 'images/ecom-banner1.png' %}");
+	background-image: url("{% static 'images/p_mouse_shark.png' %}");
 	}
 	.slide-4 {
-	background-image: url("{% static 'images/ecom-banner3.jpg' %}");
-	}
+	background-image: url("{% static 'images/p_figure.webp' %}");
+	} */
 </style>
+{% endblock %}

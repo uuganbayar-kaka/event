@@ -1,9 +1,6 @@
-{% extends 'ecom/customer_base.html' %}
+{% extends 'ecom/master.html' %}
 {% load static %}
 {% block content %}
-
-
-
   <style media="screen">
     body,
 html {
@@ -468,11 +465,6 @@ img {
 {%endif%}
 
 <script>
-    {%if messages %}
-    {%for message in messages%}
-    alert('{{message}}');
-    {%endfor%}
-    {%endif%}
 </script>
 <br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br>

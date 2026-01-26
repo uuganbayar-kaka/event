@@ -1,13 +1,19 @@
 from django.shortcuts import render,redirect,reverse
-from . import forms,models
-from django.http import HttpResponseRedirect,HttpResponse
+from . import forms, models
+from .models import ProductImage, Product
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import login_required,user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.forms import modelformset_factory
 from django.contrib import messages
 from django.conf import settings
 
 def home_view(request):
+    product_cart = []
+    total = 0
+    user = None
     products = models.Product.objects.all()
     category = models.ProductCategory.objects.all()
     if 'product_ids' in request.COOKIES:
@@ -16,18 +22,30 @@ def home_view(request):
         print("product_ids : ", product_ids)
         counter=product_ids.split('|')
         product_count_in_cart=len(set(counter))
+        product_cart = models.Product.objects.filter(id__in=counter)
+
+        for p in products:
+            total += p.discount_price if p.discount else p.price
     else:
         product_count_in_cart=0
-    cart_products=0
 
+    print("products : ", products)
     if request.user.is_authenticated:
-        return HttpResponseRedirect('afterlogin')
+        user = request.user
 
     return render(request,'ecom/index.html', {
         'products':products,
+        'banners':[
+            {'url':'images/p_hyperx.jpg'},
+            {'url':'images/p_cooler.webp'},
+            {'url':'images/p_mouse_shark.png'},
+            {'url':'images/p_figure.webp'},
+        ],
         'product_count_in_cart':product_count_in_cart,
-        'cart_products':cart_products,
+        'total':total,
+        'product_cart':product_cart,
         'category':category,
+        'user':user
     })
     
 
@@ -41,7 +59,7 @@ def adminclick_view(request):
 def customer_signup_view(request):
     userForm=forms.CustomerUserForm()
     customerForm=forms.CustomerForm()
-    mydict={'userForm':userForm,'customerForm':customerForm}
+    mydict={'userForm':userForm, 'customerForm':customerForm}
     if request.method=='POST':
         userForm=forms.CustomerUserForm(request.POST)
         customerForm=forms.CustomerForm(request.POST,request.FILES)
@@ -55,7 +73,7 @@ def customer_signup_view(request):
             my_customer_group = Group.objects.get_or_create(name='CUSTOMER')
             my_customer_group[0].user_set.add(user)
         return HttpResponseRedirect('customerlogin')
-    return render(request,'ecom/customersignup.html',context=mydict)
+    return render(request,'ecom/customer/customersignup.html',context=mydict)
 
 #-----------for checking user iscustomer
 def is_customer(user):
@@ -66,7 +84,7 @@ def is_customer(user):
 #---------AFTER ENTERING CREDENTIALS WE CHECK WHETHER USERNAME AND PASSWORD IS OF ADMIN,CUSTOMER
 def afterlogin_view(request):
     if is_customer(request.user):
-        return redirect('customer-home')
+        return redirect('home')
     else:
         return redirect('admin-dashboard')
 
@@ -91,10 +109,10 @@ def admin_dashboard_view(request):
         ordered_bys.append(ordered_by)
 
     mydict={
-    'customercount':customercount,
-    'productcount':productcount,
-    'ordercount':ordercount,
-    'data':zip(ordered_products,ordered_bys,orders),
+        'customercount':customercount,
+        'productcount':productcount,
+        'ordercount':ordercount,
+        'data':zip(ordered_products,ordered_bys,orders),
     }
     return render(request,'ecom/admin/admin_dashboard.html',context=mydict)
 
@@ -145,6 +163,12 @@ def admin_category_view(request):
     return render(request,'ecom/admin/admin_category.html',{'categores':category})
 
 @login_required(login_url='adminlogin')
+def admin_brand_view(request):
+    brands=models.ProductBrand.objects.all()
+    return render(request,'ecom/admin/admin_brand.html',{'brands':brands})
+
+
+@login_required(login_url='adminlogin')
 def admin_add_category_view(request):
     productCategoryForm=forms.ProductCategoryForm()
     if request.method=='POST':
@@ -154,35 +178,87 @@ def admin_add_category_view(request):
         return HttpResponseRedirect('admin-category')
     return render(request, 'ecom/admin/admin_add_category.html', {'productCategoryForm':productCategoryForm})
 
+@login_required(login_url='adminlogin')
+def admin_add_brand_view(request):
+    productBrandForm=forms.ProductBrandForm()
+    if request.method=='POST':
+        productBrandForm=forms.ProductBrandForm(request.POST, request.FILES)
+        if productBrandForm.is_valid():
+            productBrandForm.save()
+        return HttpResponseRedirect('admin-brand')
+    return render(request, 'ecom/admin/admin_add_brand.html', {'productBrandForm':productBrandForm})
+
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
 def admin_add_product_view(request):
-    productForm=forms.ProductForm()
-    if request.method=='POST':
-        productForm=forms.ProductForm(request.POST, request.FILES)
-        if productForm.is_valid():
-            productForm.save()
-        return HttpResponseRedirect('admin-products')
-    return render(request, 'ecom/admin/admin_add_products.html', {'productForm':productForm})
+    if request.method == 'POST':
+        productForm = forms.ProductForm(request.POST)
+        formset = forms.ProductImageFormSet(request.POST, request.FILES, queryset=ProductImage.objects.none())
+        if productForm.is_valid() and formset.is_valid():
+            product = productForm.save()
+
+            for f in formset:
+                if f.cleaned_data.get('image'):
+                    ProductImage.objects.create(
+                        product=product,
+                        image=f.cleaned_data.get('image')
+                    )
+            return HttpResponseRedirect('admin-products')
+    else:
+        productForm = forms.ProductForm()
+        formset = forms.ProductImageFormSet(queryset=ProductImage.objects.none())
+
+    return render(request, 'ecom/admin/admin_add_products.html', {'productForm': productForm, 'formset': formset})
 
 
 @login_required(login_url='adminlogin')
-def delete_product_view(request,pk):
+def delete_product_view(request, pk):
     product=models.Product.objects.get(id=pk)
     product.delete()
     return redirect('admin-products')
 
 
 @login_required(login_url='adminlogin')
-def update_product_view(request,pk):
+def update_product_view(request, pk):
     product=models.Product.objects.get(id=pk)
-    productForm=forms.ProductForm(instance=product)
-    if request.method=='POST':
-        productForm=forms.ProductForm(request.POST,request.FILES,instance=product)
-        if productForm.is_valid():
-            productForm.save()
-            return redirect('admin-products')
-    return render(request,'ecom/admin/admin_update_product.html',{'productForm':productForm})
+    images = ProductImage.objects.filter(product=product)
+    productForm = forms.ProductForm(request.POST, request.FILES, instance=product)
+    # formset = forms.ProductImageFormSet(request.POST, request.FILES, queryset=ProductImage.objects.filter(product=product))
+
+    extra_count = max(0, 3 - images.count())
+
+    ProductImageFormSet = modelformset_factory(
+        ProductImage,
+        fields=('image',),
+        extra=extra_count,
+        can_delete=True
+    )
+    
+    formset = ProductImageFormSet(queryset=images)
+
+    if productForm.is_valid() and formset.is_valid():
+        productForm.save()
+        for f in formset:
+            if f.cleaned_data.get('id') and f.cleaned_data.get('DELETE'):
+                f.cleaned_data['id'].delete()
+            elif f.cleaned_data.get('image') and not f.cleaned_data.get('DELETE'):
+                if f.cleaned_data.get('id'):
+                    img_obj = f.cleaned_data.get('id')
+                    img_obj.image = f.cleaned_data.get('image')
+                    img_obj.save()
+                else:
+                    ProductImage.objects.create(product=product, image=f.cleaned_data.get('image'))
+
+        return redirect('admin-products')
+
+    else:
+        productForm = forms.ProductForm(instance=product)
+        formset = forms.ProductImageFormSet(queryset=ProductImage.objects.filter(product=product))
+
+    return render(request, 'ecom/admin/admin_update_product.html', {
+        'productForm': productForm,
+        'formset': formset
+    })
 
 
 @login_required(login_url='adminlogin')
@@ -249,33 +325,64 @@ def search_view(request):
 
 # any one can add product to cart, no need of signin
 def add_to_cart_view(request, pk):
-    products=models.Product.objects.all()
+    products = models.Product.objects.all()
     print("add_to_cart_view : ", pk)
-
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        counter=product_ids.split('|')
-        product_count_in_cart=len(set(counter))
+    print("request.COOKIES : ", request.COOKIES)
+    product_ids = request.COOKIES.get('product_ids', '')
+    
+    if product_ids:
+        item_list = product_ids.split('|')
     else:
-        product_count_in_cart=1
+        item_list = []
+    item_list.append(str(pk))
+    
+    product_cart = models.Product.objects.filter(id__in=item_list)
 
-    response = render(request, 'ecom/index.html',{'products':products,'product_count_in_cart':product_count_in_cart})
+    product_count_in_cart = len(set(item_list))
+    response = render(
+        request,
+        'ecom/index.html', {
+            'products': products,
+            'product_cart':product_cart,
+            'product_count_in_cart': product_count_in_cart
+        }
+    )
 
-    #adding product id to cookies
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        if product_ids=="":
-            product_ids=str(pk)
-        else:
-            product_ids=product_ids+"|"+str(pk)
-        response.set_cookie('product_ids', product_ids)
-    else:
-        response.set_cookie('product_ids', pk)
-
-    product=models.Product.objects.get(id=pk)
-    messages.info(request, product.name + ' added to cart successfully!')
+    new_cookie_value = "|".join(item_list)
+    response.set_cookie('product_ids', new_cookie_value)
+    product = models.Product.objects.get(id=pk)
+    messages.info(request, f"{product.name} added to cart successfully!")
 
     return response
+
+# def add_to_cart_view(request, pk):
+#     products=models.Product.objects.all()
+#     print("add_to_cart_view : ", pk)
+
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         counter=product_ids.split('|')
+#         product_count_in_cart=len(set(counter))
+#     else:
+#         product_count_in_cart=1
+
+#     response = render(request, 'ecom/index.html',{'products':products,'product_count_in_cart':product_count_in_cart})
+
+#     #adding product id to cookies
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         if product_ids=="":
+#             product_ids=str(pk)
+#         else:
+#             product_ids=product_ids+"|"+str(pk)
+#         response.set_cookie('product_ids', product_ids)
+#     else:
+#         response.set_cookie('product_ids', pk)
+
+#     product=models.Product.objects.get(id=pk)
+#     messages.info(request, product.name + ' added to cart successfully!')
+
+#     return response
 
 
 
@@ -350,10 +457,14 @@ def send_feedback_view(request):
 
 
 def product_view(request, pk):
-    product=models.Product.objects.get(id=pk)
-    productForm=forms.ProductForm(instance=product)
+    product = get_object_or_404(Product, pk=pk)
+    images = product.images.all()
+    print("images : ", images)
 
-    return render(request,'ecom/product.html', {'product':product})
+    return render(request, 'ecom/product.html', {
+        'product': product,
+        'images': images
+    })
 
 
 #---------------------------------------------------------------------------------
@@ -369,7 +480,7 @@ def customer_home_view(request):
         product_count_in_cart=len(set(counter))
     else:
         product_count_in_cart=0
-    return render(request,'ecom/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
+    return render(request,'ecom/customer/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
 
 
 

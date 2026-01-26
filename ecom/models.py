@@ -1,9 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-# Create your models here.
+
 class Customer(models.Model):
     user=models.OneToOneField(User, on_delete=models.DO_NOTHING)
-    profile_pic= models.ImageField(upload_to='profile_pic/CustomerProfilePic/',null=True,blank=True)
     address = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20,null=False)
     
@@ -18,8 +17,17 @@ class Customer(models.Model):
     def __str__(self):
         return self.user.first_name
 
+
+class ProductBrand(models.Model):
+    name = models.CharField(max_length=500)
+    brand_image = models.ImageField(upload_to='brand_image/', null=True,blank=True)
+    
+    def __str__(self):
+        return self.name
+
 class ProductCategory(models.Model):
     name = models.CharField(max_length=500)
+    brand = models.ForeignKey(ProductBrand, null=True, on_delete=models.DO_NOTHING)
     
     def __str__(self):
         return self.name
@@ -27,20 +35,26 @@ class ProductCategory(models.Model):
 
 class Product(models.Model):
     name=models.CharField(max_length=100)
-    product_image= models.ImageField(upload_to='product_image/',null=True,blank=True)
+    product_image = models.ImageField(upload_to='product_image/',null=True,blank=True)
     price = models.PositiveIntegerField(null=False, default=0)
     discount = models.BooleanField(default=False)
     discount_price = models.PositiveIntegerField(null=False, default=0)
-    discount_type=models.CharField(max_length=40, null=True)
+    discount_type=models.CharField(max_length=40, null=True, blank=True)
     description=models.CharField(max_length=200)
     category = models.ForeignKey(ProductCategory, null=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return self.name
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='product_image/')
+
+    def __str__(self):
+        return f"Image for {self.product.name}"
 
 class Orders(models.Model):
-    STATUS =(
+    STATUS = (
         ('Pending','Pending'),
         ('Order Confirmed','Order Confirmed'),
         ('Out for Delivery','Out for Delivery'),

@@ -1,33 +1,24 @@
-<!DOCTYPE html>
+{% extends "ecom/master.html" %}
+{% load static %}
 {% load widget_tweaks %}
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>E-commerce</title>
-
-
-
-
-    <style media="screen">
+{% block content %}
+<style media="screen">
       body {
-    margin: 0;
-    padding: 0;
-    font-family: sans-serif;
-    /* background: linear-gradient(to right, #b92b27, #1565c0) */
-}
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        /* background: linear-gradient(to right, #b92b27, #1565c0) */
+    }
 
-.box {
-    width: 100%;
-    padding: 40px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    background: #3E454C;
-    text-align: center;
-    transition: 0.25s;
-    margin-top: 100px;
-    border-radius: 50px;
-}
+    .box {
+        width: 100%;
+        padding: 50px;
+        position: relative;
+        background: #3E454C;
+        text-align: center;
+        transition: 0.25s;
+        border-radius: 50px;
+    }
 
 .box input[type="text"],
 .box input[type="password"] {
@@ -143,38 +134,23 @@ a.socialIcon:hover,
     transition: all 0.8s;
     transition: all 0.8s
 }
-    </style>
-  </head>
-  <body>
-    {% include "ecom/navbar.html" %}
+</style>
+<div class="section">
     <div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <form class="box" method="post" enctype="multipart/form-data">
-                  {% csrf_token %}
-                    <h1>Customer Sign Up</h1>
-                    
-                      {% render_field userForm.first_name class="form-control" placeholder="First Name" %}
-                        {% render_field userForm.last_name class="form-control" placeholder="Last Name" %}
-                          {% render_field userForm.username class="form-control" placeholder="Username" %}
-                            {% render_field userForm.password class="form-control" placeholder="Password" %}
-                              {% render_field customerForm.address class="form-control" placeholder="Address" %}
-                                {% render_field customerForm.mobile class="form-control" placeholder="Contact" %}
-                                  {% render_field customerForm.profile_pic class="form-control" placeholder="Profile pic" %}
-                  
-                     <input type="submit" name="" value="Create">
-
-                </form>
-            </div>
+        <div class="card">
+            <form class="box" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h1>Customer Sign Up</h1>
+                    {% render_field userForm.first_name class="form-control" placeholder="First Name" %}
+                    {% render_field userForm.last_name class="form-control" placeholder="Last Name" %}
+                        {% render_field userForm.username class="form-control" placeholder="Username" %}
+                        {% render_field userForm.password class="form-control" placeholder="Password" %}
+                            {% render_field customerForm.address class="form-control" placeholder="Address" %}
+                            {% render_field customerForm.mobile class="form-control" placeholder="Contact" %}
+                                {% render_field customerForm.profile_pic class="form-control" placeholder="Profile pic" %}
+                    <input type="submit" name="" value="Create">
+            </form>
         </div>
     </div>
 </div>
-<br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br>
-{% include "ecom/footer.html" %}
-  </body>
-</html>
+{% endblock %}
