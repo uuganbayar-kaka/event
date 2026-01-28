@@ -11,44 +11,8 @@ from django.contrib import messages
 from django.conf import settings
 
 def home_view(request):
-    product_cart = []
-    total = 0
-    user = None
-    products = models.Product.objects.all()
-    category = models.ProductCategory.objects.all()
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        print("request.COOKIES : ", request.COOKIES)
-        print("product_ids : ", product_ids)
-        counter=product_ids.split('|')
-        product_count_in_cart=len(set(counter))
-        product_cart = models.Product.objects.filter(id__in=counter)
-
-        for p in products:
-            total += p.discount_price if p.discount else p.price
-    else:
-        product_count_in_cart=0
-
-    print("products : ", products)
-    if request.user.is_authenticated:
-        user = request.user
-
-    return render(request,'ecom/index.html', {
-        'products':products,
-        'banners':[
-            {'url':'images/p_hyperx.jpg'},
-            {'url':'images/p_cooler.webp'},
-            {'url':'images/p_mouse_shark.png'},
-            {'url':'images/p_figure.webp'},
-        ],
-        'product_count_in_cart':product_count_in_cart,
-        'total':total,
-        'product_cart':product_cart,
-        'category':category,
-        'user':user
-    })
+    return render(request, 'index.html')
     
-
 #for showing login button for admin(by sumit)
 def adminclick_view(request):
     if request.user.is_authenticated:
